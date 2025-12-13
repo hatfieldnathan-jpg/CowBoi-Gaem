@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Void Walker: Menu Update</title>
+    <title>Void Walker: PNG Menu</title>
     <style>
         /* --- GLOBAL FONTS & RESET --- */
         body {
@@ -21,14 +21,15 @@
             top: 0; left: 0;
             width: 100vw; height: 100vh;
             z-index: 999;
-            /* IMAGE BACKGROUND SETUP */
-            /* Ensure your image is named 'menu-bg.jpg' and is in the same folder */
-            background-image: url('menu-bg.jpg'); 
+            
+            /* --- UPDATED TO PNG --- */
+            background-image: url('menu-bg.png'); 
+            
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             
-            /* Fallback color if image is missing */
+            /* Fallback color */
             background-color: #E6C288; 
             
             display: flex;
@@ -41,7 +42,6 @@
         .menu-ui {
             text-align: center;
             z-index: 1000;
-            /* Add a semi-transparent dark backing so text pops against the art */
             background: rgba(0, 0, 0, 0.4);
             padding: 40px;
             border-radius: 20px;
@@ -80,7 +80,7 @@
             box-shadow: 0 2px 0 #5D4037;
         }
 
-        /* --- GAME CONTAINER (Hidden initially) --- */
+        /* --- GAME CONTAINER --- */
         #game-container {
             display: none; /* Hidden until Play is clicked */
             position: relative;
