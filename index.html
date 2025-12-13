@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Void Walker: PNG Menu</title>
+    <title>Void Walker: Full Game</title>
     <style>
         /* --- GLOBAL FONTS & RESET --- */
         body {
@@ -12,7 +12,7 @@
             background-color: #111;
             overflow: hidden;
             touch-action: none;
-            font-family: 'Courier New', Courier, monospace; /* Western Vibe */
+            font-family: 'Courier New', Courier, monospace;
         }
 
         /* --- MAIN MENU --- */
@@ -22,15 +22,12 @@
             width: 100vw; height: 100vh;
             z-index: 999;
             
-            /* --- UPDATED TO PNG --- */
+            /* Background Image */
             background-image: url('menu-bg.png'); 
-            
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            
-            /* Fallback color */
-            background-color: #E6C288; 
+            background-color: #E6C288; /* Fallback */
             
             display: flex;
             flex-direction: column;
@@ -38,7 +35,6 @@
             align-items: center;
         }
 
-        /* --- MENU UI OVERLAY --- */
         .menu-ui {
             text-align: center;
             z-index: 1000;
@@ -71,45 +67,37 @@
             transition: transform 0.1s, background 0.2s;
         }
 
-        #play-btn:hover {
-            background: #A0522D;
-        }
-
-        #play-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 2px 0 #5D4037;
-        }
+        #play-btn:hover { background: #A0522D; }
+        #play-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #5D4037; }
 
         /* --- GAME CONTAINER --- */
         #game-container {
-            display: none; /* Hidden until Play is clicked */
+            display: none;
             position: relative;
             width: 100vw;
             height: 100vh;
             overflow: hidden;
-            background-color: #87CEEB; /* Sky Blue Game BG */
+            background-color: #87CEEB;
         }
 
-        /* --- GAME ENVIRONMENT --- */
+        /* Environment */
         .sun {
             position: absolute; top: 20px; right: 20px;
             width: 80px; height: 80px; background: #FFD700;
             border-radius: 50%; box-shadow: 0 0 40px #FFD700; z-index: 0;
         }
-
         .floor {
             position: absolute; bottom: 0; left: 0;
             width: 100%; height: 50px; background: #E6C288;
             border-top: 4px solid #D4A76A; z-index: 1;
         }
-
         .platform {
             position: absolute; background: #8B4513; border: 2px solid #5D4037;
             border-radius: 4px; box-shadow: 2px 2px 0px rgba(0,0,0,0.2); z-index: 1;
             background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 12px);
         }
 
-        /* --- PLAYER CONTAINER (Empty per request) --- */
+        /* --- PLAYER RIG --- */
         #player {
             position: absolute;
             top: 0; left: 0;
@@ -117,24 +105,155 @@
             z-index: 10;
         }
 
-        /* --- CONTROLS --- */
-        .controls {
-            position: absolute; bottom: 20px; width: 100%; display: flex;
-            justify-content: space-between; padding: 0 20px; box-sizing: border-box;
-            pointer-events: none; z-index: 100;
+        .bone {
+            position: absolute;
+            transform-origin: top center;
+            border-radius: 10px;
+            box-sizing: border-box;
+        }
+
+        /* CLOTHING */
+        .torso {
+            background-color: #FFC600;
+            border: 1px solid #FEAF12;
+            width: 26px; height: 45px; 
+            top: -80px; left: -13px; 
+        }
+        .arm, .forearm { background-color: #FFC600; border: 1px solid #FEAF12; }
+        .thigh, .shin { background-color: #4A6CDA; border: 1px solid #476BE0; }
+        .foot { background-color: #8B4513; border: none; border-radius: 4px; }
+
+        /* FACE & HEAD */
+        .head {
+            width: 24px; height: 28px;
+            top: -105px; left: -12px;
+            border-radius: 12px; 
+            background: #FFC166; 
+            border: 1px solid #E0A050; 
+        }
+        .brow {
+            position: absolute; width: 7px; height: 2px;
+            background: #3E2723; top: 9px;
+            border-radius: 1px;
+        }
+        .brow.left { left: 3px; } .brow.right { left: 14px; }
+        
+        .eye {
+            position: absolute; width: 4px; height: 4px;
+            background: #fff; border-radius: 50%;
+            top: 12px; overflow: hidden; border: 1px solid rgba(0,0,0,0.2);
+        }
+        .eye.left { left: 4px; } .eye.right { left: 14px; }
+        
+        .pupil {
+            position: absolute; width: 2px; height: 2px;
+            background: #000; border-radius: 50%;
+            top: 1px; left: 1px; transition: transform 0.1s; 
         }
         
-        .btn {
-            background: rgba(255, 255, 255, 0.3); border: 2px solid #fff; color: #fff;
-            width: 80px; height: 80px; border-radius: 50%; display: flex;
-            justify-content: center; align-items: center; font-size: 24px;
-            pointer-events: auto; user-select: none; cursor: pointer; backdrop-filter: blur(4px);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        .mouth {
+            position: absolute; width: 6px; height: 2px; 
+            background: #8D5524; border-radius: 1px; 
+            bottom: 6px; left: 9px;
         }
 
+        /* HAT */
+        .hat {
+            position: absolute; width: 26px; height: 14px;
+            background: #8B4513; top: -10px; left: -2px; 
+            border-radius: 6px 6px 0 0; z-index: 20;
+        }
+        .hat::after {
+            content: ''; position: absolute; bottom: 0; left: -8px; 
+            width: 42px; height: 4px; background: #8B4513; border-radius: 2px;
+        }
+        .hat::before {
+            content: ''; position: absolute; bottom: 0; left: 0;
+            width: 100%; height: 4px; background: #3E2723; z-index: 21;
+        }
+
+        /* ACCESSORIES */
+        .holster {
+            position: absolute; width: 6px; height: 12px;
+            background: #5D4037; top: 8px; left: 5px; z-index: 15;
+            border-radius: 0 0 5px 5px; border: 1px solid #3E2723;
+        }
+        .holster-strap {
+            position: absolute; width: 12px; height: 2px;
+            background: #3E2723; top: 2px; left: -3px; z-index: 14;
+        }
+        .gun-handle {
+            position: absolute; width: 4px; height: 6px;
+            background: #C0C0C0; top: -4px; left: 1px;
+            transform: rotate(-15deg); border-radius: 2px; border: 1px solid #888;
+        }
+
+        /* --- LAYERING & POSITIONING --- */
+        /* Back Arm (Left) */
+        .arm.left {
+            width: 8px; height: 25px; top: -75px; left: -8px;
+            z-index: 1; transform-origin: top center;
+            filter: brightness(0.7);
+        }
+        /* Back Leg */
+        .leg.left { position: absolute; top: -40px; left: -5px; z-index: 2; filter: brightness(0.8); }
+        /* Torso */
+        .torso { z-index: 5; }
+        /* Head */
+        .head { z-index: 6; }
+        /* Front Leg */
+        .leg.right { position: absolute; top: -40px; left: 5px; z-index: 7; }
+        /* Front Arm (Right) */
+        .arm.right {
+            width: 8px; height: 25px; top: -75px; left: 10px;
+            z-index: 8; transform-origin: top center;
+        }
+
+        .forearm { width: 7px; height: 25px; top: 22px; left: 0px; transform-origin: top center; }
+        .thigh { width: 10px; height: 30px; top: 0; left: 0; transform-origin: top center; }
+        .shin { width: 9px; height: 32px; top: 26px; left: 0px; transform-origin: top center; }
+        .foot { width: 18px; height: 8px; top: 30px; left: -4px; }
+
+        /* --- ANIMATIONS --- */
+        @keyframes leg-l-walk { 0% { transform: rotate(30deg); } 50% { transform: rotate(-30deg); } 100% { transform: rotate(30deg); } }
+        @keyframes shin-l-walk { 0% { transform: rotate(10deg); } 50% { transform: rotate(40deg); } 100% { transform: rotate(10deg); } }
+        @keyframes leg-r-walk { 0% { transform: rotate(-30deg); } 50% { transform: rotate(30deg); } 100% { transform: rotate(-30deg); } }
+        @keyframes shin-r-walk { 0% { transform: rotate(40deg); } 50% { transform: rotate(10deg); } 100% { transform: rotate(40deg); } }
+        
+        @keyframes arm-l-walk { 0% { transform: rotate(-40deg); } 50% { transform: rotate(40deg); } 100% { transform: rotate(-40deg); } }
+        @keyframes arm-r-walk { 0% { transform: rotate(40deg); } 50% { transform: rotate(-40deg); } 100% { transform: rotate(40deg); } }
+        
+        @keyframes breathe { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+
+        /* Animation Application */
+        .anim-walk .leg.left .thigh { animation: leg-l-walk 0.8s linear infinite; }
+        .anim-walk .leg.left .shin { animation: shin-l-walk 0.8s linear infinite; }
+        .anim-walk .leg.right .thigh { animation: leg-r-walk 0.8s linear infinite; }
+        .anim-walk .leg.right .shin { animation: shin-r-walk 0.8s linear infinite; }
+        
+        .anim-walk .arm.left { animation: arm-l-walk 0.8s linear infinite; }
+        .anim-walk .arm.right { animation: arm-r-walk 0.8s linear infinite; }
+        
+        .anim-walk .torso, .anim-walk .head, .anim-walk .arm { animation: breathe 0.4s ease-in-out infinite; }
+        .anim-walk .pupil { transform: translateX(1px); } 
+
+        .anim-jump .leg.left .thigh { transform: rotate(-45deg); transition: 0.1s; }
+        .anim-jump .leg.left .shin { transform: rotate(90deg); transition: 0.1s; }
+        .anim-jump .leg.right .thigh { transform: rotate(20deg); transition: 0.1s; }
+        .anim-jump .leg.right .shin { transform: rotate(10deg); transition: 0.1s; }
+        .anim-jump .arm.left { transform: rotate(-120deg); transition: 0.1s; }
+        .anim-jump .arm.right { transform: rotate(60deg); transition: 0.1s; }
+
+        .idle-side .arm.left { transform: rotate(-10deg); transition: 0.5s; }
+        .idle-side .arm.right { transform: rotate(10deg); transition: 0.5s; }
+        .idle-side .leg.left .thigh { transform: rotate(5deg); transition: 0.5s; }
+        .idle-side .leg.right .thigh { transform: rotate(-5deg); transition: 0.5s; }
+
+        /* --- CONTROLS --- */
+        .controls { position: absolute; bottom: 20px; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; box-sizing: border-box; pointer-events: none; z-index: 100; }
+        .btn { background: rgba(255, 255, 255, 0.3); border: 2px solid #fff; color: #fff; width: 80px; height: 80px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; pointer-events: auto; user-select: none; cursor: pointer; backdrop-filter: blur(4px); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .btn:active { background: rgba(255, 255, 255, 0.6); }
         .d-pad { display: flex; gap: 10px; }
-
     </style>
 </head>
 <body>
@@ -157,6 +276,39 @@
         <div class="platform" style="left: 20%; bottom: 550px; width: 100px; height: 20px;"></div>
 
         <div id="player">
+            <div class="bone arm left">
+                <div class="bone forearm"></div>
+            </div>
+            <div class="leg left">
+                <div class="bone thigh">
+                    <div class="bone shin">
+                        <div class="bone foot"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="bone torso"></div>
+            <div class="leg right">
+                <div class="bone thigh">
+                    <div class="holster">
+                        <div class="holster-strap"></div>
+                        <div class="gun-handle"></div>
+                    </div>
+                    <div class="bone shin">
+                        <div class="bone foot"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="bone arm right">
+                <div class="bone forearm"></div>
+            </div>
+            <div class="bone head">
+                <div class="hat"></div>
+                <div class="brow left"></div>
+                <div class="brow right"></div>
+                <div class="eye left"><div class="pupil"></div></div>
+                <div class="eye right"><div class="pupil"></div></div>
+                <div class="mouth"></div>
+            </div>
         </div>
 
         <div class="controls">
@@ -175,22 +327,18 @@
         const gameContainer = document.getElementById('game-container');
         const playBtn = document.getElementById('play-btn');
 
-        // Start Game Logic
         playBtn.addEventListener('click', () => {
             gameState = 'PLAYING';
             mainMenu.style.display = 'none';
             gameContainer.style.display = 'block';
-            
-            // Reset player physics
             player.x = 50;
             player.y = GROUND_LEVEL;
             player.vx = 0;
             player.vy = 0;
-            
             update();
         });
 
-        // --- PHYSICS ENGINE ---
+        // --- PHYSICS ---
         const GRAVITY = 0.8;
         const SPEED = 5;
         const JUMP_FORCE = -16;
@@ -278,10 +426,20 @@
         }
 
         function render() {
+            const isMoving = Math.abs(player.vx) > 0.5;
+            playerEl.classList.remove('anim-walk', 'anim-jump', 'idle-side');
+            
             let scaleX = player.facing; 
             const SIZE_MULT = 1.3;
 
-            // Player logic remains for scrolling/camera if added later, but visuals are hidden
+            if (!player.grounded) {
+                playerEl.classList.add('anim-jump');
+            } else if (isMoving) {
+                playerEl.classList.add('anim-walk');
+            } else {
+                playerEl.classList.add('idle-side');
+            }
+
             if (scaleX < 0) {
                 playerEl.style.transform = `translate(${player.x}px, ${player.y}px) scale(-${SIZE_MULT}, ${SIZE_MULT})`;
             } else {
