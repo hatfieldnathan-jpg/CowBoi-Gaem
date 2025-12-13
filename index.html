@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Void Walker: Menu Update</title>
+    <style>
+        /* --- GLOBAL FONTS & RESET --- */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #111;
+            overflow: hidden;
+            touch-action: none;
+            font-family: 'Courier New', Courier, monospace; /* Western Vibe */
+        }
+
+        /* --- MAIN MENU --- */
+        #main-menu {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 999;
+            /* IMAGE BACKGROUND SETUP */
+            /* Ensure your image is named 'menu-bg.jpg' and is in the same folder */
+            background-image: url('menu-bg.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            
+            /* Fallback color if image is missing */
+            background-color: #E6C288; 
+            
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- MENU UI OVERLAY --- */
+        .menu-ui {
+            text-align: center;
+            z-index: 1000;
+            /* Add a semi-transparent dark backing so text pops against the art */
+            background: rgba(0, 0, 0, 0.4);
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        h1 {
+            font-size: 60px;
+            color: #fff;
+            text-transform: uppercase;
+            text-shadow: 4px 4px 0 #000;
+            margin: 0 0 30px 0;
+            letter-spacing: 5px;
+        }
+
+        #play-btn {
+            background: #8B4513;
+            color: #fff;
+            border: 3px solid #fff;
+            padding: 15px 50px;
+            font-size: 24px;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #5D4037;
+            transition: transform 0.1s, background 0.2s;
+        }
+
+        #play-btn:hover {
+            background: #A0522D;
+        }
+
+        #play-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #5D4037;
+        }
+
+        /* --- GAME CONTAINER (Hidden initially) --- */
+        #game-container {
+            display: none; /* Hidden until Play is clicked */
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #87CEEB; /* Sky Blue Game BG */
+        }
+
+        /* --- GAME ENVIRONMENT --- */
+        .sun {
+            position: absolute; top: 20px; right: 20px;
+            width: 80px; height: 80px; background: #FFD700;
+            border-radius: 50%; box-shadow: 0 0 40px #FFD700; z-index: 0;
+        }
+
+        .floor {
+            position: absolute; bottom: 0; left: 0;
+            width: 100%; height: 50px; background: #E6C288;
+            border-top: 4px solid #D4A76A; z-index: 1;
+        }
+
+        .platform {
+            position: absolute; background: #8B4513; border: 2px solid #5D4037;
+            border-radius: 4px; box-shadow: 2px 2px 0px rgba(0,0,0,0.2); z-index: 1;
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 12px);
+        }
+
+        /* --- PLAYER CONTAINER (Empty per request) --- */
+        #player {
+            position: absolute;
+            top: 0; left: 0;
+            width: 0; height: 0;
+            z-index: 10;
+        }
+
+        /* --- CONTROLS --- */
+        .controls {
+            position: absolute; bottom: 20px; width: 100%; display: flex;
+            justify-content: space-between; padding: 0 20px; box-sizing: border-box;
+            pointer-events: none; z-index: 100;
+        }
+        
+        .btn {
+            background: rgba(255, 255, 255, 0.3); border: 2px solid #fff; color: #fff;
+            width: 80px; height: 80px; border-radius: 50%; display: flex;
+            justify-content: center; align-items: center; font-size: 24px;
+            pointer-events: auto; user-select: none; cursor: pointer; backdrop-filter: blur(4px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .btn:active { background: rgba(255, 255, 255, 0.6); }
+        .d-pad { display: flex; gap: 10px; }
+
+    </style>
+</head>
+<body>
+
+    <div id="main-menu">
+        <div class="menu-ui">
+            <h1>Void Walker</h1>
+            <button id="play-btn">PLAY GAME</button>
+        </div>
+    </div>
+
+    <div id="game-container">
+        <div class="sun"></div>
+        <div class="floor"></div>
+
+        <div class="platform" style="left: 10%; bottom: 150px; width: 200px; height: 20px;"></div>
+        <div class="platform" style="left: 50%; bottom: 250px; width: 150px; height: 20px;"></div>
+        <div class="platform" style="left: 10%; bottom: 350px; width: 150px; height: 20px;"></div>
+        <div class="platform" style="left: 60%; bottom: 450px; width: 200px; height: 20px;"></div>
+        <div class="platform" style="left: 20%; bottom: 550px; width: 100px; height: 20px;"></div>
+
+        <div id="player">
+        </div>
+
+        <div class="controls">
+            <div class="d-pad">
+                <div class="btn" id="btn-left">←</div>
+                <div class="btn" id="btn-right">→</div>
+            </div>
+            <div class="btn" id="btn-jump">↑</div>
+        </div>
+    </div>
+
+    <script>
+        // --- GAME STATE ---
+        let gameState = 'MENU';
+        const mainMenu = document.getElementById('main-menu');
+        const gameContainer = document.getElementById('game-container');
+        const playBtn = document.getElementById('play-btn');
+
+        // Start Game Logic
+        playBtn.addEventListener('click', () => {
+            gameState = 'PLAYING';
+            mainMenu.style.display = 'none';
+            gameContainer.style.display = 'block';
+            
+            // Reset player physics
+            player.x = 50;
+            player.y = GROUND_LEVEL;
+            player.vx = 0;
+            player.vy = 0;
+            
+            update();
+        });
+
+        // --- PHYSICS ENGINE ---
+        const GRAVITY = 0.8;
+        const SPEED = 5;
+        const JUMP_FORCE = -16;
+        const FRICTION = 0.8;
+        let GROUND_LEVEL = window.innerHeight - 50; 
+
+        let player = { x: 50, y: GROUND_LEVEL, vx: 0, vy: 0, prevY: GROUND_LEVEL, grounded: true, facing: 1 };
+        const keys = { left: false, right: false, jump: false };
+        const playerEl = document.getElementById('player');
+        
+        const handleKey = (key, state) => {
+            if (key === 'ArrowLeft' || key === 'a') keys.left = state;
+            if (key === 'ArrowRight' || key === 'd') keys.right = state;
+            if (key === 'ArrowUp' || key === 'w' || key === ' ') keys.jump = state;
+        };
+
+        document.addEventListener('keydown', (e) => handleKey(e.key, true));
+        document.addEventListener('keyup', (e) => handleKey(e.key, false));
+
+        const bindTouch = (id, key) => {
+            const btn = document.getElementById(id);
+            const action = (state) => (e) => { 
+                e.preventDefault(); keys[key] = state; 
+            };
+            btn.addEventListener('touchstart', action(true));
+            btn.addEventListener('touchend', action(false));
+            btn.addEventListener('mousedown', action(true));
+            btn.addEventListener('mouseup', action(false));
+        };
+        bindTouch('btn-left', 'left');
+        bindTouch('btn-right', 'right');
+        bindTouch('btn-jump', 'jump');
+
+        function update() {
+            if (gameState !== 'PLAYING') return;
+
+            if (keys.left) { player.vx -= 1; player.facing = -1; }
+            if (keys.right) { player.vx += 1; player.facing = 1; }
+            player.vx = Math.max(Math.min(player.vx, SPEED), -SPEED);
+            
+            if (!keys.left && !keys.right) {
+                player.vx *= FRICTION;
+                if (Math.abs(player.vx) < 0.1) player.vx = 0;
+            }
+
+            if (keys.jump && player.grounded) {
+                player.vy = JUMP_FORCE;
+                player.grounded = false;
+            }
+
+            player.prevY = player.y; 
+            player.vy += GRAVITY;
+            player.x += player.vx;
+            player.y += player.vy;
+
+            player.grounded = false; 
+            const platforms = document.querySelectorAll('.platform');
+            if (player.vy >= 0) {
+                platforms.forEach(plat => {
+                    const rect = plat.getBoundingClientRect();
+                    const pLeft = rect.left;
+                    const pRight = rect.right;
+                    const pTop = rect.top;
+                    if (player.x > pLeft - 15 && player.x < pRight + 15) {
+                        if (player.prevY <= pTop + 5 && player.y >= pTop - 5) {
+                            player.y = pTop;
+                            player.vy = 0;
+                            player.grounded = true;
+                        }
+                    }
+                });
+            }
+
+            if (player.y > GROUND_LEVEL) {
+                player.y = GROUND_LEVEL;
+                player.vy = 0;
+                player.grounded = true;
+            }
+
+            if (player.x < 10) { player.x = 10; player.vx = 0; }
+            if (player.x > window.innerWidth - 10) { player.x = window.innerWidth - 10; player.vx = 0; }
+
+            render();
+            requestAnimationFrame(update);
+        }
+
+        function render() {
+            let scaleX = player.facing; 
+            const SIZE_MULT = 1.3;
+
+            // Player logic remains for scrolling/camera if added later, but visuals are hidden
+            if (scaleX < 0) {
+                playerEl.style.transform = `translate(${player.x}px, ${player.y}px) scale(-${SIZE_MULT}, ${SIZE_MULT})`;
+            } else {
+                playerEl.style.transform = `translate(${player.x}px, ${player.y}px) scale(${SIZE_MULT}, ${SIZE_MULT})`;
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            GROUND_LEVEL = window.innerHeight - 50;
+            if(player.y > GROUND_LEVEL) player.y = GROUND_LEVEL;
+        });
+    </script>
+</body>
+</html>
